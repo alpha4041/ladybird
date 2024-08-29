@@ -84,10 +84,9 @@ jobs:
           ccache_path: ${{ env.CCACHE_DIR }}
           ccache_primary_key: ${{ steps.cache-restore.outputs.ccache_primary_key }}
 
-        
-      - name:
+      - name: Upload APK
         uses: actions/upload-artifact@v4
-      with:
-        name: sample-app.apk
-        path: app/build/outputs/apk/debug/app-debug.apk
+        with:
+         name: sample-app.apk
+         path: app/build/outputs/apk/debug/app-debug.apk
         
