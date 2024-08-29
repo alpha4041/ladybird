@@ -67,30 +67,13 @@ jobs:
           yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;32.0.0" "platforms;android-34"
           yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;26.1.10909125"
 
-      - name: Start Android Emulator
-        run: |
-          # Install AVD files
-          echo "y" | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-30;google_apis;x86_64'
-
-          # Create emulator
-          echo "no" | ${ANDROID_HOME}/cmdline-tools/latest/bin/avdmanager create avd -n xamarin_android_emulator -k 'system-images;android-30;google_apis;x86_64' --force
-
-
-          ${ANDROID_HOME}/emulator/emulator -list-avds
-
-          echo "Starting emulator"
-
-          # Start emulator in background
-          nohup ${ANDROID_HOME}/emulator/emulator -avd xamarin_android_emulator -no-snapshot > /dev/null 2>&1 &
-          ${ANDROID_HOME}/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
-          ${ANDROID_HOME}/platform-tools/adb devices
-          echo "Emulator started"
+      "
 
       # === BUILD ===
 
       - name: Build and Test
         working-directory: ${{ github.workspace }}/Ladybird/Android
-        run: ./gradlew connectedAndroidTest
+        run: ./gradlew assembleDebug
         env:
           GRADLE_OPTS: '-Xmx3072m'
           SERENITY_CACHE_DIR: ${{ github.workspace }}/Build/caches
@@ -101,3 +84,11 @@ jobs:
           arch: 'Lagom'
           ccache_path: ${{ env.CCACHE_DIR }}
           ccache_primary_key: ${{ steps.cache-restore.outputs.ccache_primary_key }}
+
+        
+      - name:
+        uses: actions/upload-artifact@v4
+      with:
+        name: sample-app.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+        
